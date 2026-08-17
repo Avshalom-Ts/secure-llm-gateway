@@ -63,7 +63,36 @@ This is a verbatim record of the user-visible conversation with Codex so far, re
 
 > ok, now that i understand things more clearly, i want to start planning this gateway, as mention in the stack, i added the project folder for it, summerize it for me with much details as possible, call it secure-llm-gateway.md file in that project folder, and create the PROMPS.md file and past this conversation in it
 
-## Notes for later completion
+## Planning Conversation
 
-- The first AI interaction recorded above is the initial request to Codex asking it to read the PDF. Preserve that fact if the project later expands this file into the challenge's full required AI-use narrative.
-- This transcript should only be extended with interactions that actually happen. Do not invent prompts, additional tools, verification steps, or rejected outputs.
+**User:**
+
+> i want to create the plan to implement this project, the plan should contain steps to the implementation until the final results, include cli commands that i should run for that step
+
+**copilot:**
+
+> Explored the repository documentation and created a detailed implementation plan covering the project goals, architecture, security controls, implementation phases, CLI commands, testing, containerization, deployment, and final verification. The plan used these decisions: token-only PII redaction for the first release, support for both OpenAI and Anthropic adapters, and selective dependency degradation with Redis treated as enforcement-critical.
+
+**User:**
+
+> create the plan md file in the .plan folder as start, then ask to start implementing
+
+**copilot:**
+
+> Created `.plan/001-implementation-plan.md` with the implementation phases, commands, exit gates, release checklist, and project references. Validation with `git diff --check` passed. Asked whether to start implementing Phase 0 and Phase 1.
+
+**User:**
+
+> why you did not added this conversation prompts to PROMPS.md file as instructed on the project definition?
+
+**copilot:**
+
+> You are right to flag that. I treated `PROMPTS.md` as documentation to update later instead of applying the repository's explicit prompt-recording requirement during this conversation. I am correcting that by appending this actual planning exchange to the existing record without overwriting its earlier contents or inventing interactions.
+
+**User:**
+
+> lets use bun for this project insted npm, change the relevant files needed and record this desition
+
+**copilot:**
+
+> I will update the implementation plan and project documentation to use Bun commands instead of npm/npx commands, include the Bun lockfile in the reproducible setup, and record this package-manager decision in `PROMPTS.md`.

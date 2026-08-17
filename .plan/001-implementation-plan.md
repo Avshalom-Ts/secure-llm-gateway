@@ -3,6 +3,7 @@
 ## Decisions and Scope
 
 - Implement the gateway as a TypeScript/Node.js Express service.
+- Use Bun as the JavaScript runtime, package manager, script runner, and test command runner; commit the generated `bun.lock` file.
 - Support both OpenAI and Anthropic through a provider-neutral adapter interface.
 - Use token-only PII redaction for the first release. Encrypted reversible recovery is deferred, but the service boundary should leave room for a future token vault.
 - Treat Redis as enforcement-critical. Protected requests are rejected when rate limiting cannot be guaranteed.
@@ -47,22 +48,24 @@ Exit gate: requirements and unresolved decisions are recorded in `docs/secure-ll
 
 ### Phase 1: Bootstrap the Service
 
-- Create the Node.js and TypeScript project with strict compiler settings.
+- Create the Bun/TypeScript project with strict compiler settings.
 - Add Express, Zod, MongoDB, Redis, Argon2id or bcrypt, OpenAI, Anthropic, Vitest, ESLint, and Prettier.
 - Add `src/app.ts`, `src/server.ts`, and `src/config.ts`.
+- Define package scripts for `dev`, `build`, `start`, `type-check`, `lint`, unit/integration tests, coverage, security tests, and secret scanning; invoke them with `bun run`.
+- Commit `bun.lock` after dependency installation and use frozen-lockfile installation in CI.
 - Add `.env.example`, `.gitignore`, Dockerfile, and Docker Compose for the gateway, MongoDB, and Redis.
 - Establish dependency-injection boundaries so routes can use fakes in unit tests.
 
 Commands:
 
 ```powershell
-npm init -y
-npm install express zod mongodb redis argon2 openai @anthropic-ai/sdk
-npm install -D typescript tsx vitest @types/node @types/express eslint prettier
-npx tsc --init
+bun init
+bun add express zod mongodb redis argon2 openai @anthropic-ai/sdk
+bun add --dev typescript tsx vitest @types/node @types/express eslint prettier
+bunx tsc --init
 docker compose up -d mongodb redis
-npm run type-check
-npm run lint
+bun run type-check
+bun run lint
 ```
 
 Exit gate: the app starts with validated configuration, the test runner executes, and `/healthz` has a basic liveness response.
@@ -77,9 +80,9 @@ Exit gate: the app starts with validated configuration, the test runner executes
 Commands:
 
 ```powershell
-npm run type-check
-npm run test -- config error-handler
-npm run lint
+bun run type-check
+bun run test -- config error-handler
+bun run lint
 ```
 
 ### Phase 3: Authentication and Authorization
@@ -94,9 +97,9 @@ npm run lint
 Commands:
 
 ```powershell
-npm run test:unit -- authenticate authorise apiKeyRepository
-npm run type-check
-npm run lint
+bun run test:unit -- authenticate authorise apiKeyRepository
+bun run type-check
+bun run lint
 ```
 
 Exit gate: valid client and admin keys receive the expected context, and raw key secrets do not appear in logs or persistence.
@@ -112,9 +115,9 @@ Exit gate: valid client and admin keys receive the expected context, and raw key
 Commands:
 
 ```powershell
-npm run test:unit -- rateLimit redisRateLimiter
+bun run test:unit -- rateLimit redisRateLimiter
 docker compose exec redis redis-cli ping
-npm run test:integration -- rate-limit
+bun run test:integration -- rate-limit
 ```
 
 ### Phase 5: Request Validation and Normalization
@@ -126,9 +129,9 @@ npm run test:integration -- rate-limit
 Commands:
 
 ```powershell
-npm run test:unit -- validation normalization
-npm run type-check
-npm run lint
+bun run test:unit -- validation normalization
+bun run type-check
+bun run lint
 ```
 
 ### Phase 6: Inbound Security Controls
@@ -148,10 +151,10 @@ npm run lint
 Commands:
 
 ```powershell
-npm run test:unit -- injection pii
-npm run test:security
-npm run test:coverage -- security
-npm run lint
+bun run test:unit -- injection pii
+bun run test:security
+bun run test:coverage -- security
+bun run lint
 ```
 
 Exit gate: security modules are independently testable and raw PII does not enter provider requests or audit records.
@@ -168,10 +171,10 @@ Exit gate: security modules are independently testable and raw PII does not ente
 Commands:
 
 ```powershell
-npm run test:unit -- providers
-npm run test:integration -- providers
-npm run type-check
-npm run build
+bun run test:unit -- providers
+bun run test:integration -- providers
+bun run type-check
+bun run build
 ```
 
 ### Phase 8: Output Validation and Audit
@@ -198,9 +201,9 @@ npm run build
 Commands:
 
 ```powershell
-npm run test:unit -- outputValidation hashing audit
+bun run test:unit -- outputValidation hashing audit
 docker compose exec mongodb mongosh --eval "db.adminCommand({ ping: 1 })"
-npm run test:integration -- audit
+bun run test:integration -- audit
 ```
 
 ### Phase 9: Route Composition
@@ -214,10 +217,10 @@ npm run test:integration -- audit
 Commands:
 
 ```powershell
-npm run test:unit
-npm run test:integration
-npm run build
-npm start
+bun run test:unit
+bun run test:integration
+bun run build
+bun run start
 curl -i http://localhost:3000/healthz
 curl -i -X POST http://localhost:3000/v1/chat -H "x-api-key: invalid" -H "content-type: application/json" -d "{}"
 ```
@@ -235,12 +238,12 @@ Exit gate: all public endpoints have stable, documented status codes and sanitiz
 Commands:
 
 ```powershell
-npm run test
-npm run test:coverage
-npm run type-check
-npm run lint
-npm audit
-npm run scan:secrets
+bun run test
+bun run test:coverage
+bun run type-check
+bun run lint
+bun audit
+bun run scan:secrets
 ```
 
 ### Phase 11: Container and Release Verification
@@ -266,14 +269,14 @@ docker compose down -v
 Run the complete local verification sequence:
 
 ```powershell
-npm ci
+bun install --frozen-lockfile
 docker compose up -d mongodb redis
-npm run lint
-npm run type-check
-npm run test:coverage
-npm run test:integration
-npm audit
-npm run scan:secrets
+bun run lint
+bun run type-check
+bun run test:coverage
+bun run test:integration
+bun audit
+bun run scan:secrets
 ```
 
 Then manually verify:

@@ -200,7 +200,7 @@ Use Vitest for unit tests and dependency fakes for fast, deterministic testing. 
 - Chat integration: allowed flow, each blocked stage, missing provider key returning 503, audit record content and status.
 - Health: healthy and each degraded dependency scenario.
 
-Run `npm run typecheck`, `npm test`, and a Docker Compose smoke test before submission. Add CI to run typecheck, tests, and Gitleaks on push/pull request.
+Use Bun for local and CI JavaScript tooling. Run `bun run type-check`, `bun test`, and a Docker Compose smoke test before submission. Add CI to run type-check, tests, and Gitleaks on push/pull request. Commit `bun.lock` and use `bun install --frozen-lockfile` in CI.
 
 ## 8. Containers, configuration, and secrets
 
