@@ -1,0 +1,8 @@
+.env
+.git
+.plan
+.rule
+.doc
+coverage
+node_modules
+*.log

@@ -9,6 +9,7 @@ vendor/
 dist/
 build/
 coverage/
+un.lockb
 
 # Logs and temporary files
 *.log

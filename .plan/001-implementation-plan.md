@@ -12,6 +12,37 @@
 - Keep streaming, tool/function calling, file uploads, multi-turn storage, UI, billing, and full DLP out of scope.
 - Obtain the missing challenge Appendix A corpus. Until then, maintain a versioned internal adversarial test corpus.
 
+## Implementation Status
+
+**Paused at the end of 2026-08-17.** Phase 1 is in progress.
+
+### Completed
+
+- [x] Bun project initialization with strict TypeScript configuration.
+- [x] Runtime and development dependencies installed, including Express, Zod, MongoDB, Redis, Argon2, OpenAI, Anthropic, Vitest, ESLint, Prettier, and Supertest.
+- [x] Bun scripts added for development, build/type-check, linting, formatting, unit tests, integration tests, and coverage.
+- [x] `src/config.ts` added with Zod-backed environment parsing and provider configuration status.
+- [x] `src/app.ts` added with a security-conscious Express baseline and `/healthz` endpoint.
+- [x] `src/server.ts` added as the startup entry point.
+- [x] Initial health endpoint unit test added in `tests/unit/app.test.ts`.
+- [x] `.env.example`, Dockerfile, Docker Compose services, and `.dockerignore` added.
+- [x] `bun.lock` generated and updated after dependency installation.
+- [x] `bun run type-check`, `bun run lint`, and `bun run test:unit` passed after the TypeScript tooling compatibility fix.
+
+### Pending Before Phase 1 Completion
+
+- [ ] Validate `docker compose config` and, when Docker is available, start MongoDB and Redis.
+- [ ] Confirm the container build and `/healthz` smoke test.
+- [ ] Resolve the remaining package manifest cleanup: `typescript` is currently present in both `devDependencies` and `peerDependencies`; keep the project compiler in `devDependencies` and remove the generated peer entry when the manifest is next normalized.
+- [ ] Add the remaining dependency-injection interfaces and startup/shutdown lifecycle boundaries needed by later phases.
+
+### Next Session Starting Point
+
+1. Run `bun run type-check`, `bun run lint`, and `bun run test:unit` to confirm the current baseline.
+2. Run `docker compose --env-file .env.example config`.
+3. If Docker is available, run `docker compose up -d mongodb redis`, then verify `docker compose ps` and `curl -fsS http://localhost:3000/healthz` after starting the gateway.
+4. Finish the Phase 1 exit gate, then begin Phase 2 configuration, shared types, and centralized error handling.
+
 ## Target Request Lifecycle
 
 1. Create a correlation ID and start a latency timer.
@@ -61,8 +92,7 @@ Commands:
 ```powershell
 bun init
 bun add express zod mongodb redis argon2 openai @anthropic-ai/sdk
-bun add --dev typescript tsx vitest @types/node @types/express eslint prettier
-bunx tsc --init
+bun add --dev typescript tsx vitest @types/node @types/express eslint prettier supertest @types/supertest @eslint/js
 docker compose up -d mongodb redis
 bun run type-check
 bun run lint
