@@ -14,7 +14,7 @@
 
 ## Implementation Status
 
-**Active on 2026-08-18.** Phase 2 is complete; continue development and validation locally. Docker Compose build and gateway smoke testing are deferred to the final release step.
+**Active on 2026-08-18.** Phase 7 is complete; continue development and validation locally. Docker Compose build and gateway smoke testing are deferred to the final release step.
 
 ### Completed
 
@@ -32,6 +32,26 @@
 - [x] Shared gateway types and stable error codes added.
 - [x] Correlation IDs, generic error responses, and safe error logging added to the Express boundary.
 - [x] Step 2 validation passed: type-check, lint, and unit tests.
+- [x] API-key parsing, Argon2 verification, inactive-key rejection, and safe request auth context added.
+- [x] Admin-only authorization middleware added with generic `403` responses.
+- [x] MongoDB API-key repository interface and unique `keyId` index setup added.
+- [x] Local-development key generation added; persistence records contain only Argon2 hashes.
+- [x] Phase 3 validation passed: unit tests, type-check, and lint.
+- [x] Redis sorted-set sliding-window limiter added with atomic Lua cleanup, count, insert, and expiry.
+- [x] Per-key rate-limit overrides, safe `429` retry signaling, and fail-closed dependency handling added.
+- [x] Phase 4 validation passed: unit tests, type-check, and lint.
+- [x] Strict chat and audit query schemas added with message, content, generation, date, and result limits.
+- [x] Unicode, zero-width, whitespace, casing, and bounded leetspeak normalization added.
+- [x] Phase 5 validation passed: unit tests, type-check, and lint.
+- [x] Typed prompt-injection detection added for instruction overrides, exfiltration, and control-token attacks.
+- [x] Request-scoped token-only PII redaction added for email, Israeli/international phone numbers, and checksum-validated Israeli IDs.
+- [x] Repeated PII values reuse tokens across messages with local/international phone canonicalization.
+- [x] Versioned internal adversarial corpus added at `tests/security/adversarial-corpus.json`.
+- [x] Phase 6 validation passed: unit tests, type-check, and lint.
+- [x] Provider-neutral non-streaming interface and OpenAI/Anthropic adapters added.
+- [x] Provider responses normalized and provider failures/timeouts mapped to safe categories.
+- [x] Credential-gated provider factory added; fake providers remain suitable for default tests.
+- [x] Phase 7 validation passed: unit tests, type-check, and lint.
 
 ### Pending Before Phase 1 Completion
 
@@ -42,7 +62,7 @@
 
 ### Current Starting Point
 
-1. Continue Phase 3 locally with API-key authentication, role authorization, and repository interfaces.
+1. Continue Phase 8 locally with output validation, content hashing, and sanitized audit persistence.
 2. Keep MongoDB and Redis running as local dependencies when integration behavior needs them.
 3. Run the phase-level Bun checks after each completed phase, not after every small edit.
 4. Run the Docker Compose build and `/healthz` smoke test only in Phase 11.
