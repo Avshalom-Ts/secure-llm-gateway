@@ -73,6 +73,8 @@ bun run lint
 
 The unit suite covers authentication, admin authorization, rate limiting, request validation, normalization, prompt-injection detection, PII tokenization, provider output validation, hashing, audit behavior, and composed route behavior.
 
+The mandatory corpus at `tests/security/mandatory-adversarial-test-corpus.json` is executed by the unit suite. It currently covers all 12 injection entries, their echoed-output checks, and all 3 PII entries.
+
 ### Start the full stack
 
 The submission path is one command. A `.env` file is optional:

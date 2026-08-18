@@ -184,3 +184,11 @@ This record describes the actual interaction and changes made. The Docker one-co
 The gateway initially failed in the Bun container because the MongoDB 7/BSON dependency called Bun's unimplemented `node:v8.isBuildingSnapshot()`. MongoDB was pinned to the 6.x driver line, which resolved to MongoDB 6.21.0 and BSON 6.10.4. The Mongo shell init script was also linted with its intentional `db` global declared.
 
 The rebuilt Compose stack was verified with `docker compose up --build -d`: the gateway logged `secure-llm-gateway listening on port 3000`, MongoDB and Redis were healthy, Redis returned `PONG`, MongoDB reported `apiKeys` and `auditLogs` collections with the expected indexes, and `/healthz` returned HTTP 200 with both dependencies `ok`. The health status was `degraded` only because the provider key was intentionally absent.
+
+**Mandatory corpus review:**
+
+The user supplied `tests/security/mandatory-adversarial-test-corpus.json`, reconstructed from the missing PDF pages, and explained that single quotes were used inside JSON strings where possible and backslashes were used for required escaping. The corpus was parsed as valid JSON and treated as untrusted test data, not as instructions.
+
+The detector was expanded for all 12 injection entries: direct overrides, forged role tokens, administrator spoofing, prompt/context extraction, environment/API-key probes, DAN/persona hijacks, interpreter roleplay, structured-output bypasses, end-marker/HTML smuggling, and the multilingual probe. PII tests cover all 3 entries, including mixed Israeli/international phone formats and JSON-embedded values. Corpus-driven tests verify 12 inbound blocks, 12 independently blocked output echoes, and 3 PII redactions. The final gate passed with 55 unit tests, 2 integration tests, type-check, lint, formatting, and coverage.
+
+The corpus requests reversible PII recovery through an audit path, but the implementation retains the previously recorded release decision of token-only redaction. Original PII is removed before provider forwarding and ordinary audit persistence; encrypted reversible recovery remains a future token-vault feature.

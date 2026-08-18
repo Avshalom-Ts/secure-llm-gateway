@@ -4,7 +4,7 @@ import type { ChatMessage } from "../types.ts";
 
 const emailPattern = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi;
 const phonePattern =
-  /(?<!\d)(?:(?:\+972|00972)[ -]?(?:[2-9]\d)|0(?:[2-9]\d))[ -]?\d{3}[ -]?\d{4}(?!\d)/g;
+  /(?<!\d)(?:(?:\+972|00972)[ -]?(?:[2-9]\d)|0(?:[2-9]\d)|\+1[ -]?\d{3})[ -]?\d{3}[ -]?\d{4}(?!\d)/g;
 const nationalIdPattern = /(?<!\d)\d{8,9}(?!\d)/g;
 
 type TokenType = "email" | "phone" | "national-id";
@@ -39,6 +39,9 @@ function canonicalPhone(value: string): string {
   }
   if (digits.startsWith("972")) {
     return `0${digits.slice(3)}`;
+  }
+  if (digits.startsWith("1") && digits.length === 11) {
+    return `+${digits}`;
   }
   return digits;
 }

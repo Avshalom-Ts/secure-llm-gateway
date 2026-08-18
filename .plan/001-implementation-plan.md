@@ -46,7 +46,7 @@
 - [x] Typed prompt-injection detection added for instruction overrides, exfiltration, and control-token attacks.
 - [x] Request-scoped token-only PII redaction added for email, Israeli/international phone numbers, and checksum-validated Israeli IDs.
 - [x] Repeated PII values reuse tokens across messages with local/international phone canonicalization.
-- [x] Versioned internal adversarial corpus added at `tests/security/adversarial-corpus.json`.
+- [x] Versioned internal adversarial corpus added at `tests/security/mandatory-adversarial-test-corpus.json`.
 - [x] Phase 6 validation passed: unit tests, type-check, and lint.
 - [x] Provider-neutral non-streaming interface and OpenAI/Anthropic adapters added.
 - [x] Provider responses normalized and provider failures/timeouts mapped to safe categories.
@@ -80,6 +80,11 @@
 - [x] `bun audit` passed with no vulnerabilities found.
 - [x] Dockerfile validation passed with `docker build --check -t secure-llm-gateway:local .`.
 - [x] SIGTERM shutdown verified through Compose without unhandled Redis errors.
+- [x] Mandatory adversarial corpus added at `tests/security/mandatory-adversarial-test-corpus.json` and parsed successfully as JSON.
+- [x] Corpus-driven tests pass for all 12 `INJ-*` cases, all 12 echoed-output checks, and all 3 `PII-*` cases.
+- [x] Corpus acceptance criteria are covered: injection blocks are typed, output echoes are independently rejected, PII is removed before provider forwarding, and quote/escape variants remain valid JSON inputs.
+- [x] Final mandatory-corpus gate passed: 55 unit tests, 2 integration tests, type-check, lint, and repository-wide formatting.
+- [x] Final coverage after corpus additions: 87.03% statements, 82.41% branches, 96% functions, and 86.85% lines.
 
 ### Remaining Release Gates
 
@@ -88,6 +93,19 @@
 - [x] Verify provider-ready health using a controlled configured-provider fixture.
 - [x] Verify graceful SIGINT/SIGTERM shutdown and resource cleanup.
 - [ ] Run a live OpenAI or Anthropic request with a real credential; intentionally not run in default verification.
+
+### Mandatory Adversarial Corpus Acceptance
+
+The supplied corpus is authoritative for security acceptance. The test suite must continue to enforce:
+
+- Every `INJ-*` entry is detected before provider invocation and produces the injection-blocking path with an audit threat code.
+- Every `PII-*` entry is forwarded only after all supported PII spans are replaced with tokens; original values must not occur in provider-facing content.
+- Every `INJ-*` payload echoed by a stubbed provider is rejected independently by output validation.
+- Corpus variations involving case, whitespace, delimiter markers, multilingual text, JSON quoting, and escaped characters remain parseable and detected.
+
+The corpus uses valid JSON escaping. Single quotes inside JSON strings are ordinary characters and do not need escaping; double quotes inside inputs are escaped with `\"`. The backslash escapes in the D3 JSON payload are therefore expected and are decoded by `JSON.parse` before detection/redaction tests run.
+
+The corpus describes PII recovery as reversible through an audit path. This implementation deliberately follows the earlier release decision to use token-only redaction: original PII is removed before provider forwarding and is absent from ordinary audit records, while encrypted reversible recovery remains a documented future vault feature.
 
 ### Current Starting Point
 
