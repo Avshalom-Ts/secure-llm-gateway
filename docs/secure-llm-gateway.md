@@ -6,11 +6,11 @@ Build a small, production-oriented TypeScript/Express service that is the single
 
 The first delivery should optimise for a working, testable security pipeline rather than broad provider features. The public surface is deliberately small:
 
-| Endpoint | Access | Purpose |
-| --- | --- | --- |
-| `POST /v1/chat` | client or admin key | Validate, secure, proxy, validate output, audit, return result. |
-| `GET /v1/audit?since=<ISO-8601>&limit=<1..500>` | admin key | Return sanitised audit records since a time. |
-| `GET /healthz` | none | Report liveness and dependency/provider configuration readiness. |
+| Endpoint                                        | Access              | Purpose                                                          |
+| ----------------------------------------------- | ------------------- | ---------------------------------------------------------------- |
+| `POST /v1/chat`                                 | client or admin key | Validate, secure, proxy, validate output, audit, return result.  |
+| `GET /v1/audit?since=<ISO-8601>&limit=<1..500>` | admin key           | Return sanitised audit records since a time.                     |
+| `GET /healthz`                                  | none                | Report liveness and dependency/provider configuration readiness. |
 
 Explicit non-goals for the first cut: streaming responses, tool/function calling, file uploads, multi-turn server-side conversation storage, a UI, billing, and a full DLP engine. These should be stated in the README as limitations instead of silently implied support.
 
@@ -58,10 +58,10 @@ Suggested request lifecycle:
 ```ts
 type ApiKey = {
   _id: ObjectId;
-  keyId: string;                 // public internal identifier, e.g. key_...
-  secretHash: string;            // Argon2id or bcrypt hash; never raw key
-  role: 'client' | 'admin';
-  rateLimitPerMinute?: number;   // default 30
+  keyId: string; // public internal identifier, e.g. key_...
+  secretHash: string; // Argon2id or bcrypt hash; never raw key
+  role: "client" | "admin";
+  rateLimitPerMinute?: number; // default 30
   active: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -76,14 +76,14 @@ type AuditLog = {
   timestamp: Date;
   correlationId: string;
   apiKeyId?: string;
-  model?: 'gpt-4o' | 'claude-3-5-sonnet';
-  requestHash?: string;          // SHA-256 of canonicalised, pre-redaction request
-  responseHash?: string;         // SHA-256 of returned/provider output, per policy
+  model?: "gpt-4o" | "claude-3-5-sonnet";
+  requestHash?: string; // SHA-256 of canonicalised, pre-redaction request
+  responseHash?: string; // SHA-256 of returned/provider output, per policy
   detectedThreats: ThreatCode[];
   piiTokenCount: number;
   latencyMs: number;
-  status: 'allowed' | 'blocked' | 'error';
-  reason?: string;               // stable reason code, not sensitive prompt text
+  status: "allowed" | "blocked" | "error";
+  reason?: string; // stable reason code, not sensitive prompt text
 };
 ```
 
@@ -176,15 +176,15 @@ Use a `Provider` interface so the route only knows `complete(request): Promise<P
 
 Use a consistent response shape, for example `{ error: { code, message, correlationId } }`. Suggested outcomes:
 
-| Situation | Status | Example code |
-| --- | ---: | --- |
-| Missing/invalid API key | 401 | `UNAUTHENTICATED` |
-| Authenticated, wrong role | 403 | `FORBIDDEN` |
-| Invalid request body or inbound injection | 400 | `INVALID_REQUEST` / `PROMPT_INJECTION_DETECTED` |
-| Rate limit exceeded | 429 | `RATE_LIMITED` |
-| Provider not configured | 503 | `PROVIDER_UNAVAILABLE` |
-| Provider timeout/failure | 502 or 503 | `PROVIDER_ERROR` |
-| Unsafe provider output | 422 | `UNSAFE_PROVIDER_OUTPUT` |
+| Situation                                 |     Status | Example code                                    |
+| ----------------------------------------- | ---------: | ----------------------------------------------- |
+| Missing/invalid API key                   |        401 | `UNAUTHENTICATED`                               |
+| Authenticated, wrong role                 |        403 | `FORBIDDEN`                                     |
+| Invalid request body or inbound injection |        400 | `INVALID_REQUEST` / `PROMPT_INJECTION_DETECTED` |
+| Rate limit exceeded                       |        429 | `RATE_LIMITED`                                  |
+| Provider not configured                   |        503 | `PROVIDER_UNAVAILABLE`                          |
+| Provider timeout/failure                  | 502 or 503 | `PROVIDER_ERROR`                                |
+| Unsafe provider output                    |        422 | `UNSAFE_PROVIDER_OUTPUT`                        |
 
 `GET /healthz` should report overall status plus named component states such as Mongo reachable, Redis reachable, and provider configured. It must never reveal provider keys or full connection strings.
 

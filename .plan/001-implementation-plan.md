@@ -14,7 +14,7 @@
 
 ## Implementation Status
 
-**Active on 2026-08-18.** Phase 9 is complete; continue development and validation locally. Docker Compose build and gateway smoke testing are deferred to the final release step.
+**Active on 2026-08-18.** Phase 10 and the local Phase 11 release checks are complete. The core gateway pipeline, exact `docker compose up -d` startup path, integration coverage, secret scan, formatting, and shutdown verification all pass. A live provider credential test remains optional and environment-dependent.
 
 ### Completed
 
@@ -66,22 +66,35 @@
 - [x] `.gitleaks.toml` and `scan:secrets` package script added.
 - [x] Stale TypeScript peer dependency removed and `bun.lock` synchronized.
 - [x] Full local tests, type-check, and lint passed after Phase 10 changes.
+- [x] MongoDB driver pinned to the Bun-compatible 6.x line after the MongoDB 7/BSON runtime incompatibility was found.
+- [x] Mongo init script added at `docker/mongo-init.js` for first startup of an empty data volume.
+- [x] Compose uses an optional `.env` file and explicit `NODE_ENV`, `LLM_PROVIDER`, MongoDB, Redis, and port values so `docker compose up -d` works without a local secret file.
+- [x] Exact `docker compose up -d` verification passed with healthy gateway, MongoDB, and Redis containers.
+- [x] MongoDB connectivity, Redis `PONG`, collection creation, index creation, and `/healthz` HTTP 200 verified.
+- [x] Idempotent Mongo-backed API-key seed command added as `bun run seed:key`.
+- [x] Real MongoDB/Redis integration tests added and passed: 2 tests.
+- [x] Health readiness tests added for ready and degraded dependency states.
+- [x] Coverage provider added; coverage run passed with 87.15% statements and 86.97% lines.
+- [x] Repository-wide Prettier check passed after formatting normalization.
+- [x] Gitleaks 8.30.1 installed and `bun run scan:secrets` passed with no leaks found.
+- [x] `bun audit` passed with no vulnerabilities found.
+- [x] Dockerfile validation passed with `docker build --check -t secure-llm-gateway:local .`.
+- [x] SIGTERM shutdown verified through Compose without unhandled Redis errors.
 
-### Pending Before Phase 1 Completion
+### Remaining Release Gates
 
-- [x] Validate `docker compose config` and start MongoDB and Redis for local dependency development.
-- [ ] Confirm the container build and `/healthz` smoke test during the final release verification step.
-- [ ] Resolve the remaining package manifest cleanup: `typescript` is currently present in both `devDependencies` and `peerDependencies`; keep the project compiler in `devDependencies` and remove the generated peer entry when the manifest is next normalized.
-- [ ] Add the remaining dependency-injection interfaces and startup/shutdown lifecycle boundaries needed by later phases.
-- [ ] Resolve repository-wide Prettier drift reported by `bun run format:check` (48 files); touched continuation files are formatted.
-- [ ] Install/run Gitleaks and resolve any findings; `bun run scan:secrets` is currently unavailable because the binary is not installed.
+- [x] Add real MongoDB/Redis integration tests and dependency connectivity coverage.
+- [x] Run `bun run test:coverage` and record security-control coverage.
+- [x] Verify provider-ready health using a controlled configured-provider fixture.
+- [x] Verify graceful SIGINT/SIGTERM shutdown and resource cleanup.
+- [ ] Run a live OpenAI or Anthropic request with a real credential; intentionally not run in default verification.
 
 ### Current Starting Point
 
-1. Continue Phase 10 locally with documentation, regression coverage, secret scanning, and release hardening.
+1. Optionally run a credential-gated live provider request and inspect sanitized logs/audit records.
 2. Keep MongoDB and Redis running as local dependencies when integration behavior needs them.
 3. Run the phase-level Bun checks after each completed phase, not after every small edit.
-4. Run the Docker Compose build and `/healthz` smoke test only in Phase 11.
+4. Keep the exact `docker compose up -d` smoke test as a repeatable release check; it has passed with healthy services.
 
 ## Target Request Lifecycle
 

@@ -8,20 +8,20 @@ The initial release selects one live provider through configuration (`openai` or
 
 ## Components
 
-| Component | Responsibility |
-| --- | --- |
-| Express application | Composes middleware, routes, request-size limits, a correlation ID, and the error boundary. |
-| Authentication middleware | Parses `x-api-key`, finds the internal key record, verifies its slow hash, and attaches only the internal key identity, role, and limit override to request context. |
-| Authorization middleware | Restricts `/v1/audit` to the `admin` role. |
-| Rate-limit middleware | Uses an atomic Redis sorted-set operation or Lua script to enforce a 60-second sliding window per immutable API-key ID. |
-| Request validator | Enforces the chat schema: approved model, supported roles, non-empty bounded messages, and bounded `max_tokens`. |
-| Injection detector | Normalises inbound content and returns typed threat codes for role override, data exfiltration, and delimiter/control-token patterns. |
+| Component                    | Responsibility                                                                                                                                                                      |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Express application          | Composes middleware, routes, request-size limits, a correlation ID, and the error boundary.                                                                                         |
+| Authentication middleware    | Parses `x-api-key`, finds the internal key record, verifies its slow hash, and attaches only the internal key identity, role, and limit override to request context.                |
+| Authorization middleware     | Restricts `/v1/audit` to the `admin` role.                                                                                                                                          |
+| Rate-limit middleware        | Uses an atomic Redis sorted-set operation or Lua script to enforce a 60-second sliding window per immutable API-key ID.                                                             |
+| Request validator            | Enforces the chat schema: approved model, supported roles, non-empty bounded messages, and bounded `max_tokens`.                                                                    |
+| Injection detector           | Normalises inbound content and returns typed threat codes for role override, data exfiltration, and delimiter/control-token patterns.                                               |
 | PII redactor and token vault | Replaces supported PII with opaque, request-scoped tokens before provider invocation. Reversibility, if delivered, is isolated in an encrypted, access-controlled TTL-backed vault. |
-| Provider adapter | Converts a validated, redacted request into the configured OpenAI or Anthropic API call with timeout and typed failure handling. |
-| Output validator | Blocks provider output that contains secret patterns or echoes a detected injection; it never returns blocked output to the caller. |
-| Audit service and repository | Writes minimally sensitive audit metadata for every allowed, blocked, and error outcome. |
-| Health route | Reports liveness plus MongoDB, Redis, and provider configuration/readiness without returning credentials or connection strings. |
-| AI-agent activity recorder | Appends factual AI-agent run entries to repository-root `PROMPTS.md`, including the user prompt, timing, result, and detected workspace file changes. |
+| Provider adapter             | Converts a validated, redacted request into the configured OpenAI or Anthropic API call with timeout and typed failure handling.                                                    |
+| Output validator             | Blocks provider output that contains secret patterns or echoes a detected injection; it never returns blocked output to the caller.                                                 |
+| Audit service and repository | Writes minimally sensitive audit metadata for every allowed, blocked, and error outcome.                                                                                            |
+| Health route                 | Reports liveness plus MongoDB, Redis, and provider configuration/readiness without returning credentials or connection strings.                                                     |
+| AI-agent activity recorder   | Appends factual AI-agent run entries to repository-root `PROMPTS.md`, including the user prompt, timing, result, and detected workspace file changes.                               |
 
 ## Data and Request Flow
 
@@ -66,11 +66,11 @@ The recorder captures the file set by comparing the repository worktree immediat
 
 ### HTTP contract
 
-| Endpoint | Authentication | Behaviour |
-| --- | --- | --- |
-| `POST /v1/chat` | `client` or `admin` API key | Runs the full security pipeline and proxies to the selected provider. |
-| `GET /v1/audit?since=<ISO-8601>&limit=<1..500>` | `admin` API key | Returns bounded, sanitised audit entries since the supplied timestamp. |
-| `GET /healthz` | None | Reports service liveness and component/provider readiness. |
+| Endpoint                                        | Authentication              | Behaviour                                                              |
+| ----------------------------------------------- | --------------------------- | ---------------------------------------------------------------------- |
+| `POST /v1/chat`                                 | `client` or `admin` API key | Runs the full security pipeline and proxies to the selected provider.  |
+| `GET /v1/audit?since=<ISO-8601>&limit=<1..500>` | `admin` API key             | Returns bounded, sanitised audit entries since the supplied timestamp. |
+| `GET /healthz`                                  | None                        | Reports service liveness and component/provider readiness.             |
 
 Error responses use a stable shape such as `{ error: { code, message, correlationId } }`. Expected status codes include `401` for unauthenticated requests, `403` for role violations, `400` for invalid or injected input, `429` for rate limits, `422` for unsafe provider output, `502`/`503` for provider failures, and a clear `503` when no provider key is configured.
 
@@ -100,17 +100,17 @@ Rate-limit entries use a key such as `rate:{apiKeyId}` and timestamps as sorted-
 
 ## External Dependencies
 
-| Dependency | Purpose | Operational expectation |
-| --- | --- | --- |
-| OpenAI or Anthropic API | Live model completion for the selected provider | API key from environment; timeout and controlled error mapping. |
-| MongoDB | API-key metadata and minimal audit persistence | Reachability checked by health endpoint; required for protected traffic. |
-| Redis | Atomic, per-key sliding-window rate limiting | Reachability checked by health endpoint; required for protected traffic. |
-| Docker and Docker Compose | Local reproducible service, MongoDB, and Redis startup | `docker compose up --build` starts the complete development stack. |
-| Gitleaks or equivalent | Secret scanning in local/CI workflow | Narrow allow-listing only for intentional test fixtures. |
+| Dependency                | Purpose                                                | Operational expectation                                                  |
+| ------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------ |
+| OpenAI or Anthropic API   | Live model completion for the selected provider        | API key from environment; timeout and controlled error mapping.          |
+| MongoDB                   | API-key metadata and minimal audit persistence         | Reachability checked by health endpoint; required for protected traffic. |
+| Redis                     | Atomic, per-key sliding-window rate limiting           | Reachability checked by health endpoint; required for protected traffic. |
+| Docker and Docker Compose | Local reproducible service, MongoDB, and Redis startup | `docker compose up --build` starts the complete development stack.       |
+| Gitleaks or equivalent    | Secret scanning in local/CI workflow                   | Narrow allow-listing only for intentional test fixtures.                 |
 
 ## Change Log
 
-| Date | Change |
-| --- | --- |
+| Date       | Change                                                                     |
+| ---------- | -------------------------------------------------------------------------- |
 | 2026-08-17 | Replaced starter content with the proposed SecureLLM Gateway architecture. |
-| 2026-08-17 | Defined the `PROMPTS.md` AI-agent activity-record contract. |
+| 2026-08-17 | Defined the `PROMPTS.md` AI-agent activity-record contract.                |

@@ -12,6 +12,9 @@ const mongo = new MongoClient(config.mongodbUri);
 await mongo.connect();
 const database = mongo.db();
 const redis = createClient({ url: config.redisUrl });
+redis.on("error", () => {
+  console.error({ component: "redis", reason: "connection_error" });
+});
 await redis.connect();
 
 const apiKeys = new MongoApiKeyRepository(database);

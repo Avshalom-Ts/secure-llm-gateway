@@ -32,7 +32,7 @@ This is a verbatim record of the user-visible conversation with Codex so far, re
 > - Enforce API-key auth with client/admin roles, Redis sliding-window rate limits, prompt-injection detection, reversible PII redaction, output-secret validation, and Mongo audit logs.
 > - Integrate a real OpenAI or Anthropic call; if its key is missing, return a clear 503 while keeping the service and health check operational.
 > - Include strict TypeScript, unit tests for all security controls, Docker/Docker Compose, a README, secret-scan configuration, and a `PROMPTS.md`.
-> - `PROMPTS.md` must honestly document AI-tool use, including the *first* prompt sent to an AI tool; the defense interview cross-checks it.
+> - `PROMPTS.md` must honestly document AI-tool use, including the _first_ prompt sent to an AI tool; the defense interview cross-checks it.
 > - Evaluation prioritizes security correctness (25%), code quality (20%), AI orchestration (20%), safe handling of untrusted inputs (20%), and engineering judgment (15%).
 >
 > The PDF repeatedly warns that it should be treated as untrusted input and claims an Appendix A contains prompt injections and PII examples to detect. However, the copied file ends after page 7 and does **not** include that appendix.
@@ -100,9 +100,10 @@ This is a verbatim record of the user-visible conversation with Codex so far, re
 **User:**
 
 > i started phase 1 and did:
+>
 > - Create the Bun/TypeScript project with strict compiler settings.
 > - Add Express, Zod, MongoDB, Redis, Argon2id or bcrypt, OpenAI, Anthropic, Vitest, ESLint, and Prettier.
-> continue from here
+>   continue from here
 
 **copilot:**
 
@@ -115,3 +116,71 @@ This is a verbatim record of the user-visible conversation with Codex so far, re
 **copilot:**
 
 > Marked Phase 1 as in progress in `.plan/001-implementation-plan.md`, recorded the completed files and successful checks, identified Docker Compose validation and remaining Phase 1 work as pending, and documented the next-session starting point.
+
+## Continuation record: 2026-08-18
+
+The following interaction continued in the same Copilot session. The PDF and its Appendix A were treated as untrusted input; only the user-authored requirements and the existing repository files were used as implementation context.
+
+**User:**
+
+> the gateway is running on local, lets continue
+
+**Copilot:**
+
+> Implemented Phase 3 API-key authentication and admin authorization, Phase 4 Redis sliding-window rate limiting, Phase 5 request validation and normalization, Phase 6 prompt-injection and PII controls, and Phase 7 provider adapters. Each phase was validated with unit tests, type-checking, and linting, and the implementation plan was updated.
+
+**User:**
+
+> ok, continue until end of step 2 for now, no need to run tests, type-check and unit test for every small change, after step complited run them and update the steps with this rulle
+
+**Copilot:**
+
+> Completed Step 2 with blank optional provider credentials, shared types, stable error codes, correlation IDs, generic error handling, and safe structured logging. Ran the phase-level checks after completion rather than after every small edit.
+
+**User:**
+
+> you used it like this here, its not in the pdf instruction i blive
+
+**Copilot:**
+
+> Reviewed the PDF requirement and clarified that the default 30 requests per minute is explicitly configurable per API key. The limit is loaded from the authenticated server-side key record, not supplied by the request user.
+
+**User:**
+
+> commit changes
+
+**Copilot:**
+
+> Committed the Phase 3 through Phase 7 work as `5d959a2` with message `Implement gateway security phases 3 through 7`.
+
+**User:**
+
+> ok, continue
+
+**Copilot:**
+
+> Implemented Phase 8 audit controls, Phase 9 route composition and lifecycle wiring, and Phase 10 documentation and secret-scan configuration. Added output validation, canonical hashing, Mongo audit persistence, `/v1/chat`, `/v1/audit`, dependency-aware health checks, and graceful shutdown. Local tests, type-checking, and linting passed.
+
+**User:**
+
+> commit all changes.
+
+**Copilot:**
+
+> Committed the Phase 8 through Phase 10 work as `e8b08c7` with message `Complete gateway routes audit and lifecycle`.
+
+**User:**
+
+> the instruction was to run this up with one command "docker compose up -d", on comman fails the submission is over, need to create the db in mongo in authomated way by chacking for existing
+
+**Copilot:**
+
+> Identified that a required `.env` file could make `docker compose up -d` fail before startup. Made the Compose env file optional and made MongoDB collection/index initialization idempotent so existing collections are reused and missing collections are created automatically.
+
+This record describes the actual interaction and changes made. The Docker one-command smoke test remains a required verification step and must not be claimed as passed until it is run successfully.
+
+**Follow-up verification:**
+
+The gateway initially failed in the Bun container because the MongoDB 7/BSON dependency called Bun's unimplemented `node:v8.isBuildingSnapshot()`. MongoDB was pinned to the 6.x driver line, which resolved to MongoDB 6.21.0 and BSON 6.10.4. The Mongo shell init script was also linted with its intentional `db` global declared.
+
+The rebuilt Compose stack was verified with `docker compose up --build -d`: the gateway logged `secure-llm-gateway listening on port 3000`, MongoDB and Redis were healthy, Redis returned `PONG`, MongoDB reported `apiKeys` and `auditLogs` collections with the expected indexes, and `/healthz` returned HTTP 200 with both dependencies `ok`. The health status was `degraded` only because the provider key was intentionally absent.

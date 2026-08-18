@@ -59,17 +59,110 @@ Provider output is treated as untrusted. The gateway blocks OpenAI-style secrets
 
 Audit records contain timestamps, correlation IDs, key IDs, models, hashes, threat codes, token counts, latency, status, and stable reasons. MongoDB write failures are surfaced as dependency errors rather than reported as successful audit writes.
 
-## Verification
+## Testing the gateway
+
+### Fast local checks
+
+These checks use fakes and do not require Docker, MongoDB, Redis, or provider credentials:
 
 ```powershell
 bun run test
 bun run type-check
 bun run lint
+```
+
+The unit suite covers authentication, admin authorization, rate limiting, request validation, normalization, prompt-injection detection, PII tokenization, provider output validation, hashing, audit behavior, and composed route behavior.
+
+### Start the full stack
+
+The submission path is one command. A `.env` file is optional:
+
+```powershell
+docker compose up -d
+```
+
+Check all services:
+
+```powershell
+docker compose ps
+docker compose logs gateway
+```
+
+Expected services are `gateway`, `mongodb`, and `redis`, all eventually showing `healthy`. MongoDB creates the `secure_llm_gateway` database, `apiKeys` and `auditLogs` collections, and their indexes automatically when the data volume is new.
+
+### Check health and dependencies
+
+```powershell
+Invoke-WebRequest -UseBasicParsing http://localhost:3000/healthz
+docker compose exec redis redis-cli ping
+docker compose exec mongodb mongosh --quiet --eval "const d=db.getSiblingDB('secure_llm_gateway'); printjson({collections:d.getCollectionNames(), ping:d.runCommand({ping:1}).ok, apiKeysIndexes:d.apiKeys.getIndexes().length, auditIndexes:d.auditLogs.getIndexes().length})"
+```
+
+Without a provider key, `/healthz` should return HTTP `200`, MongoDB and Redis should report `ok`, and the overall status should be `degraded` because provider readiness is false. This is expected and allows the gateway to start safely.
+
+### Create a local API key
+
+After the gateway container is running, create an API-key record inside MongoDB with the trusted seed command:
+
+```powershell
+docker compose exec gateway bun run seed:key -- --key-id local-client --role client --rate-limit 30
+```
+
+For an admin key:
+
+```powershell
+docker compose exec gateway bun run seed:key -- --key-id local-admin --role admin --rate-limit 100
+```
+
+The command is idempotent by `keyId`: rerunning it replaces that key's hash and configuration. It stores only the Argon2 hash in MongoDB and prints the raw `skg_<keyId>_<secret>` value once. Keep the printed value for the request tests; it cannot be recovered from MongoDB.
+
+### Test protected endpoints
+
+Protected endpoints require a valid API key in this format:
+
+```text
+skg_<keyId>_<secret>
+```
+
+The seed command above creates a real key for Docker smoke testing. Invalid-key handling can also be tested without a seeded key:
+
+```powershell
+Invoke-WebRequest -UseBasicParsing `
+  -Method Post `
+  -Uri http://localhost:3000/v1/chat `
+  -ContentType application/json `
+  -Headers @{ "x-api-key" = "invalid" } `
+  -Body '{"model":"gpt-4o","messages":[{"role":"user","content":"hello"}]}'
+```
+
+The expected result is a sanitized `401` response. When no provider key is configured, a valid authenticated chat request reaches the pipeline and returns a controlled `503` for provider unavailability.
+
+### Optional clean database initialization test
+
+Only use this when local MongoDB data can be deleted. It verifies the first-start init script:
+
+```powershell
+docker compose down -v
+docker compose up -d
+docker compose ps
+```
+
+`docker compose down -v` deletes the local MongoDB volume and all data in it.
+
+### Additional release checks
+
+```powershell
+bun run test:integration
+bun run test:coverage
 bun run format:check
 bun run scan:secrets
 ```
 
-Docker Compose build and gateway smoke verification are deferred to the final release step. MongoDB and Redis can still run locally during development.
+`bun run test:integration` requires the running Docker MongoDB and Redis services. The current integration suite verifies real MongoDB API-key persistence and real Redis sliding-window enforcement. The current coverage run reports 87.15% statements and 86.97% lines. `gitleaks` must be installed separately for `bun run scan:secrets`; the verified environment used Gitleaks 8.30.1 and found no leaks. Shutdown checks should be performed before release.
+
+## Verification
+
+Docker Compose startup and gateway `/healthz` smoke verification have passed. MongoDB and Redis integration tests, coverage, `bun audit`, Gitleaks, Dockerfile validation, and SIGTERM shutdown verification have also passed in the current environment. MongoDB and Redis can still run locally during development.
 
 ## Limitations
 

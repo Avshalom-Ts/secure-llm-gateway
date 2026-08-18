@@ -3,8 +3,11 @@ services:
     build:
       context: .
     env_file:
-      - .env
+      - path: .env
+        required: false
     environment:
+      NODE_ENV: development
+      LLM_PROVIDER: openai
       MONGODB_URI: mongodb://mongodb:27017/secure_llm_gateway
       REDIS_URL: redis://redis:6379
       PORT: 3000
@@ -29,17 +32,23 @@ services:
 
   mongodb:
     image: mongo:8
+    environment:
+      MONGO_INITDB_DATABASE: secure_llm_gateway
+    ports:
+      - "27017:27017"
     volumes:
       - mongodb-data:/data/db
+      - ./docker/mongo-init.js:/docker-entrypoint-initdb.d/01-gateway-init.js:ro
     healthcheck:
-      test:
-        ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand({ ping: 1 }).ok"]
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand({ ping: 1 }).ok"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   redis:
     image: redis:8-alpine
+    ports:
+      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s

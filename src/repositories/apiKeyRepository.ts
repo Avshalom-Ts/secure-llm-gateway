@@ -28,4 +28,8 @@ export class MongoApiKeyRepository implements ApiKeyRepository {
   findByKeyId(keyId: string): Promise<ApiKeyRecord | null> {
     return this.collection.findOne({ keyId });
   }
+
+  async save(record: ApiKeyRecord): Promise<void> {
+    await this.collection.replaceOne({ keyId: record.keyId }, record, { upsert: true });
+  }
 }

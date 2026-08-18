@@ -60,7 +60,7 @@ The gateway sits between trusted internal callers, untrusted user-supplied promp
 
 ## Change Log
 
-| Date | Change |
-| --- | --- |
+| Date       | Change                                                                                                                                   |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | 2026-08-17 | Replaced starter content with the SecureLLM Gateway product definition derived from the challenge brief and current implementation plan. |
-| 2026-08-17 | Added AI-agent prompt and file-change traceability as an explicit project requirement. |
+| 2026-08-17 | Added AI-agent prompt and file-change traceability as an explicit project requirement.                                                   |
