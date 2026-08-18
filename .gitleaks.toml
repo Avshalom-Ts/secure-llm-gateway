@@ -1,0 +1,8 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Allow only the documented synthetic adversarial corpus."
+paths = [
+  '''tests/security/adversarial-corpus\.json'''
+]

@@ -14,7 +14,7 @@
 
 ## Implementation Status
 
-**Active on 2026-08-18.** Phase 7 is complete; continue development and validation locally. Docker Compose build and gateway smoke testing are deferred to the final release step.
+**Active on 2026-08-18.** Phase 9 is complete; continue development and validation locally. Docker Compose build and gateway smoke testing are deferred to the final release step.
 
 ### Completed
 
@@ -52,6 +52,20 @@
 - [x] Provider responses normalized and provider failures/timeouts mapped to safe categories.
 - [x] Credential-gated provider factory added; fake providers remain suitable for default tests.
 - [x] Phase 7 validation passed: unit tests, type-check, and lint.
+- [x] Outbound output validation added for provider secrets, JWT-shaped values, AWS keys, and injection echoes.
+- [x] Canonical SHA-256 hashing added for stable request and response hashes.
+- [x] MongoDB audit repository added with timestamp/API-key indexes and bounded reads.
+- [x] Audit write failures propagate instead of being reported as successful writes.
+- [x] Phase 8 validation passed: unit tests, type-check, and lint.
+- [x] Complete `/v1/chat` pipeline composed with injected authentication, rate limiting, validation, security, provider, and audit dependencies.
+- [x] Admin-only `/v1/audit` route composed with bounded query validation and dependency failure handling.
+- [x] Server lifecycle connects MongoDB/Redis, creates indexes, wires the selected provider, and handles graceful shutdown.
+- [x] Live health readiness reports dependency/provider degradation without exposing credentials or connection strings.
+- [x] Phase 9 validation passed: unit tests, type-check, and lint.
+- [x] README replaced with local setup, endpoint, security architecture, verification, and limitation guidance.
+- [x] `.gitleaks.toml` and `scan:secrets` package script added.
+- [x] Stale TypeScript peer dependency removed and `bun.lock` synchronized.
+- [x] Full local tests, type-check, and lint passed after Phase 10 changes.
 
 ### Pending Before Phase 1 Completion
 
@@ -59,10 +73,12 @@
 - [ ] Confirm the container build and `/healthz` smoke test during the final release verification step.
 - [ ] Resolve the remaining package manifest cleanup: `typescript` is currently present in both `devDependencies` and `peerDependencies`; keep the project compiler in `devDependencies` and remove the generated peer entry when the manifest is next normalized.
 - [ ] Add the remaining dependency-injection interfaces and startup/shutdown lifecycle boundaries needed by later phases.
+- [ ] Resolve repository-wide Prettier drift reported by `bun run format:check` (48 files); touched continuation files are formatted.
+- [ ] Install/run Gitleaks and resolve any findings; `bun run scan:secrets` is currently unavailable because the binary is not installed.
 
 ### Current Starting Point
 
-1. Continue Phase 8 locally with output validation, content hashing, and sanitized audit persistence.
+1. Continue Phase 10 locally with documentation, regression coverage, secret scanning, and release hardening.
 2. Keep MongoDB and Redis running as local dependencies when integration behavior needs them.
 3. Run the phase-level Bun checks after each completed phase, not after every small edit.
 4. Run the Docker Compose build and `/healthz` smoke test only in Phase 11.

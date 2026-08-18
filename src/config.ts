@@ -6,8 +6,14 @@ const configSchema = z.object({
   MONGODB_URI: z.string().url().default("mongodb://localhost:27017/secure_llm_gateway"),
   REDIS_URL: z.string().url().default("redis://localhost:6379"),
   LLM_PROVIDER: z.enum(["openai", "anthropic"]).default("openai"),
-  OPENAI_API_KEY: z.preprocess((value) => (value === "" ? undefined : value), z.string().min(1).optional()),
-  ANTHROPIC_API_KEY: z.preprocess((value) => (value === "" ? undefined : value), z.string().min(1).optional()),
+  OPENAI_API_KEY: z.preprocess(
+    (value) => (value === "" ? undefined : value),
+    z.string().min(1).optional(),
+  ),
+  ANTHROPIC_API_KEY: z.preprocess(
+    (value) => (value === "" ? undefined : value),
+    z.string().min(1).optional(),
+  ),
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
 });
 
@@ -18,6 +24,8 @@ export type AppConfig = {
   redisUrl: string;
   llmProvider: "openai" | "anthropic";
   providerConfigured: boolean;
+  openaiApiKey?: string;
+  anthropicApiKey?: string;
   logLevel: "debug" | "info" | "warn" | "error";
 };
 
@@ -35,6 +43,8 @@ export function loadConfig(environment: NodeJS.ProcessEnv = process.env): AppCon
     redisUrl: parsed.REDIS_URL,
     llmProvider: parsed.LLM_PROVIDER,
     providerConfigured,
+    openaiApiKey: parsed.OPENAI_API_KEY,
+    anthropicApiKey: parsed.ANTHROPIC_API_KEY,
     logLevel: parsed.LOG_LEVEL,
   };
 }

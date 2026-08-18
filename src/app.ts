@@ -3,8 +3,17 @@ import { randomUUID } from "node:crypto";
 
 import { errorBody, GatewayError } from "./errors.ts";
 import type { AppConfig } from "./config.ts";
+import { createAuditRouter } from "./routes/audit.ts";
+import { createChatRouter, type ChatDependencies } from "./routes/chat.ts";
 
-export function createApp(config: AppConfig): Express {
+export type AppDependencies = ChatDependencies & {
+  health?: {
+    mongodb: () => Promise<boolean>;
+    redis: () => Promise<boolean>;
+  };
+};
+
+export function createApp(config: AppConfig, dependencies?: AppDependencies): Express {
   const app = express();
 
   app.disable("x-powered-by");
@@ -16,9 +25,25 @@ export function createApp(config: AppConfig): Express {
   });
   app.use(express.json({ limit: "256kb" }));
 
-  app.get("/healthz", (_request, response) => {
+  app.get("/healthz", async (_request, response) => {
+    const dependencyStatus = dependencies?.health
+      ? await Promise.all(
+          [dependencies.health.mongodb, dependencies.health.redis].map(async (check) => {
+            try {
+              return (await check()) ? "ok" : "unavailable";
+            } catch {
+              return "unavailable";
+            }
+          }),
+        )
+      : ["not_checked", "not_checked"];
+    const status = dependencies?.health
+      ? dependencyStatus.every((component) => component === "ok") && config.providerConfigured
+        ? "ok"
+        : "degraded"
+      : "ok";
     response.status(200).json({
-      status: "ok",
+      status,
       service: "secure-llm-gateway",
       environment: config.environment,
       provider: {
@@ -26,11 +51,16 @@ export function createApp(config: AppConfig): Express {
         configured: config.providerConfigured,
       },
       dependencies: {
-        mongodb: "not_checked",
-        redis: "not_checked",
+        mongodb: dependencyStatus[0],
+        redis: dependencyStatus[1],
       },
     });
   });
+
+  if (dependencies) {
+    app.use("/v1/chat", createChatRouter(dependencies));
+    app.use("/v1/audit", createAuditRouter(dependencies.apiKeys, dependencies.audits));
+  }
 
   const errorHandler: ErrorRequestHandler = (error, _request, response, next) => {
     void next;
