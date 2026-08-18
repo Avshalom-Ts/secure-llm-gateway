@@ -14,4 +14,4 @@ COPY src ./src
 
 USER bun
 EXPOSE 3000
-CMD ["bun", "run", "start"]
+CMD ["bun", "src/server.ts"]

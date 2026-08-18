@@ -25,5 +25,21 @@ describe("health endpoint", () => {
       dependencies: { mongodb: "not_checked", redis: "not_checked" },
     });
     expect(JSON.stringify(response.body)).not.toContain("API_KEY");
+    expect(response.headers["x-correlation-id"]).toEqual(expect.any(String));
+  });
+
+  it("returns a generic correlated error for malformed JSON", async () => {
+    const response = await request(createApp(testConfig))
+      .post("/v1/chat")
+      .set("content-type", "application/json")
+      .send("{");
+
+    expect(response.status).toBe(400);
+    expect(response.body.error).toMatchObject({
+      code: "INVALID_REQUEST",
+      message: "The request body is invalid.",
+      correlationId: expect.any(String),
+    });
+    expect(response.headers["x-correlation-id"]).toBe(response.body.error.correlationId);
   });
 });

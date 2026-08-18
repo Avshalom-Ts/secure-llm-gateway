@@ -6,8 +6,8 @@ const configSchema = z.object({
   MONGODB_URI: z.string().url().default("mongodb://localhost:27017/secure_llm_gateway"),
   REDIS_URL: z.string().url().default("redis://localhost:6379"),
   LLM_PROVIDER: z.enum(["openai", "anthropic"]).default("openai"),
-  OPENAI_API_KEY: z.string().min(1).optional(),
-  ANTHROPIC_API_KEY: z.string().min(1).optional(),
+  OPENAI_API_KEY: z.preprocess((value) => (value === "" ? undefined : value), z.string().min(1).optional()),
+  ANTHROPIC_API_KEY: z.preprocess((value) => (value === "" ? undefined : value), z.string().min(1).optional()),
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
 });
 

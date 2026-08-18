@@ -14,7 +14,7 @@
 
 ## Implementation Status
 
-**Paused at the end of 2026-08-17.** Phase 1 is in progress.
+**Active on 2026-08-18.** Phase 2 is complete; continue development and validation locally. Docker Compose build and gateway smoke testing are deferred to the final release step.
 
 ### Completed
 
@@ -28,20 +28,24 @@
 - [x] `.env.example`, Dockerfile, Docker Compose services, and `.dockerignore` added.
 - [x] `bun.lock` generated and updated after dependency installation.
 - [x] `bun run type-check`, `bun run lint`, and `bun run test:unit` passed after the TypeScript tooling compatibility fix.
+- [x] Optional provider credentials accept blank local/Compose values as unavailable instead of failing configuration parsing.
+- [x] Shared gateway types and stable error codes added.
+- [x] Correlation IDs, generic error responses, and safe error logging added to the Express boundary.
+- [x] Step 2 validation passed: type-check, lint, and unit tests.
 
 ### Pending Before Phase 1 Completion
 
-- [ ] Validate `docker compose config` and, when Docker is available, start MongoDB and Redis.
-- [ ] Confirm the container build and `/healthz` smoke test.
+- [x] Validate `docker compose config` and start MongoDB and Redis for local dependency development.
+- [ ] Confirm the container build and `/healthz` smoke test during the final release verification step.
 - [ ] Resolve the remaining package manifest cleanup: `typescript` is currently present in both `devDependencies` and `peerDependencies`; keep the project compiler in `devDependencies` and remove the generated peer entry when the manifest is next normalized.
 - [ ] Add the remaining dependency-injection interfaces and startup/shutdown lifecycle boundaries needed by later phases.
 
-### Next Session Starting Point
+### Current Starting Point
 
-1. Run `bun run type-check`, `bun run lint`, and `bun run test:unit` to confirm the current baseline.
-2. Run `docker compose --env-file .env.example config`.
-3. If Docker is available, run `docker compose up -d mongodb redis`, then verify `docker compose ps` and `curl -fsS http://localhost:3000/healthz` after starting the gateway.
-4. Finish the Phase 1 exit gate, then begin Phase 2 configuration, shared types, and centralized error handling.
+1. Continue Phase 3 locally with API-key authentication, role authorization, and repository interfaces.
+2. Keep MongoDB and Redis running as local dependencies when integration behavior needs them.
+3. Run the phase-level Bun checks after each completed phase, not after every small edit.
+4. Run the Docker Compose build and `/healthz` smoke test only in Phase 11.
 
 ## Target Request Lifecycle
 
