@@ -13,6 +13,13 @@ export type AppDependencies = ChatDependencies & {
   };
 };
 
+/**
+ * Creates the Express application, registers health and API routes, and maps
+ * unexpected failures to the gateway's safe error response format.
+ * @param config Runtime configuration used for readiness reporting and metadata.
+ * @param dependencies Optional repositories, rate limiter, provider, and health checks.
+ * @returns A configured Express application instance.
+ */
 export function createApp(config: AppConfig, dependencies?: AppDependencies): Express {
   const app = express();
 

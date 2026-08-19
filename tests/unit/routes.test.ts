@@ -19,6 +19,12 @@ const keyRecord = {
   active: true,
 };
 
+/**
+ * Creates a composed test app with injectable provider and route dependencies.
+ * @param provider Provider implementation used by the chat route, or null.
+ * @param role Role assigned to the simulated authenticated API key.
+ * @returns An Express app configured with chat and audit routes.
+ */
 function createApp(provider: Provider | null, role: "client" | "admin" = "client") {
   const apiKeys: ApiKeyRepository = {
     findByKeyId: async () => ({ ...keyRecord, role }),

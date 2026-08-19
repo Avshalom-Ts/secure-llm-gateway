@@ -7,6 +7,12 @@ const outputPatterns: Array<[ThreatCode, RegExp]> = [
   ["AWS_KEY_IN_OUTPUT", /\bAKIA[0-9A-Z]{16}\b/],
 ];
 
+/**
+ * Detects secrets and echoed inbound injection content in provider output.
+ * @param content Provider response content to inspect.
+ * @param inboundThreats Threats detected in the corresponding request.
+ * @returns Unique threat codes found in the provider response.
+ */
 export function validateProviderOutput(
   content: string,
   inboundThreats: ThreatCode[] = [],

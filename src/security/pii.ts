@@ -14,6 +14,11 @@ export type TokenizedText = {
   tokenCount: number;
 };
 
+/**
+ * Validates an 8- or 9-digit value using the Israeli ID checksum algorithm.
+ * @param value Candidate national ID value.
+ * @returns True when the value has a valid checksum and is not all zeroes.
+ */
 function validIsraeliId(value: string): boolean {
   const digits = value.padStart(9, "0");
   if (digits.length !== 9 || /^0+$/.test(digits)) {
@@ -27,11 +32,22 @@ function validIsraeliId(value: string): boolean {
   return checksum % 10 === 0;
 }
 
+/**
+ * Creates a stable, non-reversible token for a normalized PII value.
+ * @param type PII category used in the token label and hash input.
+ * @param value Canonical value to tokenize.
+ * @returns A deterministic PII replacement token.
+ */
 function tokenFor(type: TokenType, value: string): string {
   const digest = createHash("sha256").update(`${type}:${value}`).digest("hex").slice(0, 12);
   return `[PII:${type}:${digest}]`;
 }
 
+/**
+ * Converts supported international phone formats to a stable canonical form.
+ * @param value Phone number containing punctuation or an international prefix.
+ * @returns Canonical digits, or a plus-prefixed US number where applicable.
+ */
 function canonicalPhone(value: string): string {
   const digits = value.replace(/\D/g, "");
   if (digits.startsWith("00972")) {
@@ -46,6 +62,11 @@ function canonicalPhone(value: string): string {
   return digits;
 }
 
+/**
+ * Replaces supported PII in chat messages with stable tokens shared across the request.
+ * @param messages Chat messages whose content should be redacted before forwarding.
+ * @returns Redacted messages and the count of distinct PII tokens created.
+ */
 export function tokenizeMessages(messages: ChatMessage[]): {
   messages: ChatMessage[];
   piiTokenCount: number;

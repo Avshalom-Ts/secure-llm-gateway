@@ -6,6 +6,11 @@ import { errorBody, GatewayError } from "../../src/errors.ts";
 import { enforceRateLimit } from "../../src/middleware/rateLimit.ts";
 import { RedisRateLimiter, type RateLimiter } from "../../src/repositories/redisRateLimiter.ts";
 
+/**
+ * Creates an Express app for exercising rate-limit middleware behavior.
+ * @param rateLimiter Rate limiter supplied to the middleware under test.
+ * @returns An Express app exposing the protected test route.
+ */
 function createTestApp(rateLimiter: RateLimiter) {
   const app = express();
   app.use((request, _response, next) => {

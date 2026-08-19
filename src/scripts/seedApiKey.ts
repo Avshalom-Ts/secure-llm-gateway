@@ -5,6 +5,11 @@ import { MongoApiKeyRepository } from "../repositories/apiKeyRepository.ts";
 import { createLocalApiKey } from "../repositories/localApiKey.ts";
 import type { UserRole } from "../types.ts";
 
+/**
+ * Reads the value immediately following a named command-line argument.
+ * @param name Argument name to find in process.argv.
+ * @returns The following argument value, or undefined when absent.
+ */
 function argument(name: string): string | undefined {
   const index = process.argv.indexOf(name);
   return index >= 0 ? process.argv[index + 1] : undefined;

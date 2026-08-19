@@ -11,6 +11,12 @@ import { createLocalApiKey } from "../../src/repositories/localApiKey.ts";
 
 const secret = "local-test-secret";
 
+/**
+ * Creates an Express app for exercising authentication and authorization middleware.
+ * @param repository API-key repository supplied to the authentication middleware.
+ * @param adminOnly Whether the protected route also requires administrator access.
+ * @returns An Express app exposing the protected test route.
+ */
 function createTestApp(repository: ApiKeyRepository, adminOnly = false) {
   const app = express();
   app.use(authenticate(repository));

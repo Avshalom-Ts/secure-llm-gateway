@@ -39,6 +39,11 @@ const server = app.listen(config.port, () => {
   console.log(`secure-llm-gateway listening on port ${config.port}`);
 });
 
+/**
+ * Stops accepting requests and closes Redis and MongoDB connections gracefully.
+ * @param signal Operating-system signal that initiated shutdown.
+ * @returns A promise resolved after the server and dependencies close.
+ */
 async function shutdown(signal: string): Promise<void> {
   console.log(`received ${signal}, shutting down`);
   await new Promise<void>((resolve, reject) =>

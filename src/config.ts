@@ -29,6 +29,12 @@ export type AppConfig = {
   logLevel: "debug" | "info" | "warn" | "error";
 };
 
+/**
+ * Validates environment variables and converts them into the application's
+ * typed runtime configuration.
+ * @param environment Environment values to parse; defaults to process.env.
+ * @returns The validated application configuration.
+ */
 export function loadConfig(environment: NodeJS.ProcessEnv = process.env): AppConfig {
   const parsed = configSchema.parse(environment);
   const providerConfigured =

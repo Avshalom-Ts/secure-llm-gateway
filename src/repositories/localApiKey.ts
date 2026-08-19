@@ -9,6 +9,14 @@ export type LocalApiKey = {
   record: ApiKeyRecord;
 };
 
+/**
+ * Generates a local API key and returns its display value alongside the Argon2
+ * record suitable for persistence.
+ * @param keyId Public identifier to embed in the generated key.
+ * @param role Authorization role assigned to the key.
+ * @param rateLimitPerMinute Optional per-key request limit.
+ * @returns The one-time display key and its hashed persistence record.
+ */
 export async function createLocalApiKey(
   keyId: string,
   role: UserRole = "client",

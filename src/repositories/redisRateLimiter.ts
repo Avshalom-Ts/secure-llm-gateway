@@ -32,8 +32,21 @@ type RedisEvalClient = {
 };
 
 export class RedisRateLimiter implements RateLimiter {
+  /**
+   * Creates a sliding-window rate limiter backed by a Redis evaluation client.
+   * @param client Redis client capable of evaluating the rate-limit script.
+   * @returns A RedisRateLimiter instance.
+   */
   constructor(private readonly client: RedisEvalClient) {}
 
+  /**
+   * Consumes one request from a key's rolling one-minute quota.
+   * @param keyId API-key identifier whose quota should be updated.
+   * @param limit Maximum requests allowed in the window.
+   * @param nowMs Timestamp used for the request; defaults to the current time.
+   * @returns Whether the request is allowed and, when blocked, its retry delay.
+   * @throws Error when Redis cannot evaluate the rate-limit script.
+   */
   async consume(keyId: string, limit: number, nowMs = Date.now()): Promise<RateLimitResult> {
     try {
       const result = await this.client.eval(RATE_LIMIT_SCRIPT, {
@@ -51,6 +64,11 @@ export class RedisRateLimiter implements RateLimiter {
   }
 }
 
+/**
+ * Adapts a standard Redis client to the gateway rate-limiter interface.
+ * @param client Connected Redis client used for quota evaluation.
+ * @returns A Redis-backed RateLimiter instance.
+ */
 export function createRedisRateLimiter(client: RedisClientType): RateLimiter {
   return new RedisRateLimiter(client);
 }

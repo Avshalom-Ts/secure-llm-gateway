@@ -25,10 +25,21 @@ export const auditQuerySchema = z
   })
   .strict();
 
+/**
+ * Validates an unknown request body against the bounded chat request schema.
+ * @param value Untrusted request body to parse.
+ * @returns A validated ChatRequest value.
+ * @throws ZodError when the body shape or limits are invalid.
+ */
 export function parseChatRequest(value: unknown): ChatRequest {
   return chatRequestSchema.parse(value);
 }
 
+/**
+ * Normalizes Unicode, invisible characters, whitespace, casing, and basic leetspeak.
+ * @param value Text to normalize before security pattern matching.
+ * @returns The normalized lowercase text.
+ */
 export function normalizeText(value: string): string {
   return value
     .normalize("NFKC")

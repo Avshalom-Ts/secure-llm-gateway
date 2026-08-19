@@ -16,6 +16,11 @@ declare module "express-serve-static-core" {
   }
 }
 
+/**
+ * Parses the expected secure gateway API-key format into its lookup id and secret.
+ * @param value Value supplied by the client in the API-key header.
+ * @returns Parsed key parts, or null when the value is missing or malformed.
+ */
 export function parseApiKey(value: string | undefined): { keyId: string; secret: string } | null {
   if (!value) {
     return null;
@@ -29,6 +34,12 @@ export function parseApiKey(value: string | undefined): { keyId: string; secret:
   return { keyId: match[1], secret: match[2] };
 }
 
+/**
+ * Creates middleware that verifies an API key and attaches only safe identity
+ * and rate-limit information to the request.
+ * @param repository Repository used to retrieve the stored key record.
+ * @returns Express middleware that authenticates each request.
+ */
 export function authenticate(repository: ApiKeyRepository): RequestHandler {
   return async (request: Request, _response: Response, next: NextFunction) => {
     const parsedKey = parseApiKey(request.header("x-api-key"));

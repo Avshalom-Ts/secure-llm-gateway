@@ -5,6 +5,11 @@ import type { RateLimiter } from "../repositories/redisRateLimiter.ts";
 
 const DEFAULT_RATE_LIMIT = 30;
 
+/**
+ * Creates middleware that consumes a per-key request from the configured rate limiter.
+ * @param rateLimiter Sliding-window limiter used to enforce request quotas.
+ * @returns Express middleware that permits, rejects, or fails closed for a request.
+ */
 export function enforceRateLimit(rateLimiter: RateLimiter): RequestHandler {
   return async (request: Request, response: Response, next: NextFunction) => {
     const auth = request.auth;

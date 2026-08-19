@@ -21,10 +21,22 @@ export type ChatDependencies = {
   audits: AuditRepository;
 };
 
+/**
+ * Reads the request correlation id assigned by the application middleware.
+ * @param response Express response containing local request metadata.
+ * @returns The request correlation identifier.
+ */
 function correlationId(response: Response): string {
   return response.locals.correlationId as string;
 }
 
+/**
+ * Persists an audit record and converts storage failures into a gateway error.
+ * @param audits Repository used to write the record.
+ * @param record Sanitized record describing the request outcome.
+ * @returns A promise resolved after the record is persisted.
+ * @throws GatewayError when audit storage is unavailable.
+ */
 async function writeAudit(audits: AuditRepository, record: AuditRecord): Promise<void> {
   try {
     await audits.insert(record);
@@ -33,6 +45,12 @@ async function writeAudit(audits: AuditRepository, record: AuditRecord): Promise
   }
 }
 
+/**
+ * Builds the authenticated, rate-limited chat route with inbound and outbound
+ * security checks plus audit logging.
+ * @param dependencies API-key, rate-limit, provider, and audit integrations.
+ * @returns A router exposing the chat completion endpoint.
+ */
 export function createChatRouter(dependencies: ChatDependencies): Router {
   const router = Router();
   router.use(authenticate(dependencies.apiKeys));

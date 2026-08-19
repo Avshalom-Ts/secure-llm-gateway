@@ -7,6 +7,12 @@ import type { AuditRepository } from "../repositories/auditRepository.ts";
 import type { ApiKeyRepository } from "../repositories/apiKeyRepository.ts";
 import { auditQuerySchema } from "../security/validation.ts";
 
+/**
+ * Builds the administrator-only audit route and validates its query parameters.
+ * @param apiKeys Repository used to authenticate API keys.
+ * @param repository Repository used to read audit records.
+ * @returns A router exposing the audit query endpoint.
+ */
 export function createAuditRouter(apiKeys: ApiKeyRepository, repository: AuditRepository): Router {
   const router = Router();
   router.use(authenticate(apiKeys));

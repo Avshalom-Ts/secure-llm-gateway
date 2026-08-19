@@ -6,10 +6,23 @@ import { ProviderError, type Provider } from "./types.ts";
 export class AnthropicProvider implements Provider {
   private readonly client: Anthropic;
 
+  /**
+   * Creates an Anthropic client adapter using the supplied credential.
+   * @param apiKey Anthropic API key used for provider requests.
+   * @returns A configured AnthropicProvider instance.
+   */
   constructor(apiKey: string) {
     this.client = new Anthropic({ apiKey });
   }
 
+  /**
+   * Sends a normalized chat request to Anthropic and converts its response to
+   * the gateway provider contract.
+   * @param request Model, messages, and generation settings to send.
+   * @param signal Optional abort signal for cancelling the provider request.
+   * @returns The provider response content and model name.
+   * @throws ProviderError when the provider times out, fails, or returns no text.
+   */
   async complete(request: ProviderRequest, signal?: AbortSignal): Promise<ProviderResponse> {
     try {
       const systemMessage = request.messages.find((message) => message.role === "system")?.content;

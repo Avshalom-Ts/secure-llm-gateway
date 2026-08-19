@@ -16,6 +16,11 @@ const patterns: Array<[ThreatCode, RegExp]> = [
   ],
 ];
 
+/**
+ * Normalizes text and detects configured prompt-injection threat patterns.
+ * @param content Message content to inspect.
+ * @returns Threat codes matched in the normalized content.
+ */
 export function detectInjection(content: string): ThreatCode[] {
   const normalized = normalizeText(content);
   return patterns.filter(([, pattern]) => pattern.test(normalized)).map(([code]) => code);
