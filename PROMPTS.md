@@ -54,6 +54,8 @@ One concrete moment: I asked *"why you did not added this conversation prompts t
 
 ## 4. What was rejected
 
+I do not recall rejecting AI-generated code because of a significant misunderstanding. However, there were occasions when I accidentally pressed Enter before noticing that the correct file or files had not been attached to the prompt. On other occasions, Copilot had already responded, but the interaction remained in Ask or Planning mode instead of Agent mode, so it did not make the requested changes directly to the files.
+
 ## 5. What would be done with more time
 
 1. **Reversible PII recovery.** Replace the current one-way tokenization with an encrypted, access-controlled, audited token vault, matching the mandatory corpus's expectation that redacted PII is recoverable via the audit path. AI would help scaffold the encryption/key-rotation logic and the access-audit trail.
