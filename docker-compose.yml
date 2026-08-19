@@ -8,6 +8,8 @@ services:
     environment:
       NODE_ENV: development
       LLM_PROVIDER: openai
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       MONGODB_URI: mongodb://mongodb:27017/secure_llm_gateway
       REDIS_URL: redis://redis:6379
       PORT: 3000
