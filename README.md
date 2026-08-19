@@ -104,16 +104,16 @@ Without a provider key, `/healthz` should return HTTP `200`, MongoDB and Redis s
 
 ### Create a local API key
 
-After the gateway container is running, create an API-key record inside MongoDB with the trusted seed command:
+After the gateway container is running, create an API-key record inside MongoDB with the trusted seed script. Run it with `bun run` directly against the script file, since the container's Bun runtime does not use `tsx`:
 
 ```powershell
-docker compose exec gateway bun run seed:key -- --key-id local-client --role client --rate-limit 30
+docker compose exec gateway bun run src/scripts/seedApiKey.ts --key-id local-client --role client --rate-limit 30
 ```
 
 For an admin key:
 
 ```powershell
-docker compose exec gateway bun run seed:key -- --key-id local-admin --role admin --rate-limit 100
+docker compose exec gateway bun run src/scripts/seedApiKey.ts --key-id local-admin --role admin --rate-limit 100
 ```
 
 The command is idempotent by `keyId`: rerunning it replaces that key's hash and configuration. It stores only the Argon2 hash in MongoDB and prints the raw `skg_<keyId>_<secret>` value once. Keep the printed value for the request tests; it cannot be recovered from MongoDB.
