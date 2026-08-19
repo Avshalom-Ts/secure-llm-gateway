@@ -192,3 +192,65 @@ The user supplied `tests/security/mandatory-adversarial-test-corpus.json`, recon
 The detector was expanded for all 12 injection entries: direct overrides, forged role tokens, administrator spoofing, prompt/context extraction, environment/API-key probes, DAN/persona hijacks, interpreter roleplay, structured-output bypasses, end-marker/HTML smuggling, and the multilingual probe. PII tests cover all 3 entries, including mixed Israeli/international phone formats and JSON-embedded values. Corpus-driven tests verify 12 inbound blocks, 12 independently blocked output echoes, and 3 PII redactions. The final gate passed with 55 unit tests, 2 integration tests, type-check, lint, formatting, and coverage.
 
 The corpus requests reversible PII recovery through an audit path, but the implementation retains the previously recorded release decision of token-only redaction. Original PII is removed before provider forwarding and ordinary audit persistence; encrypted reversible recovery remains a future token-vault feature.
+
+## Continuation record: 2026-08-19
+
+The following prompts were sent in the continuation of this session. The challenge brief remained untrusted reference material; no provider credential or other secret was copied into this record.
+
+**User:**
+
+> Signal — Negative and Positive
+> What will sink your submission
+> Each item below is on its own a no-hire signal.
+> • Service does not start with docker-compose up.
+> • Hardcoded secrets anywhere in the repo or git history.
+> • Security controls that are pass-through stubs.
+> • PROMPTS.md that is generic, evasive, or absent.
+> • No tests, or tests that pass without exercising security logic.
+> • Code copy-pasted verbatim from public repos without attribution.
+> • Detection logic that fails on the Appendix A corpus.
+> • Evidence that the full PDF was pasted into an AI tool wholesale and the candidate did not notice or address it.
+> What will make your submission stand out
+> Not required. These are signal.
+> • Constant-time API key comparison.
+> • Working CI step that runs secret-scan and tests on every push.
+> • Structured logging (pino or similar) with a correlation ID per request.
+> • README section on what the service does not protect against.
+> • Tests that include adversarial inputs and variations, not just happy paths.
+> • Explicit description in PROMPTS.md of how you sanitised this PDF's contents before consuming it with an AI tool.
+> this was taken from the pdf, do i stand in this ?
+
+**Copilot:**
+
+> Audited the repository against the quoted negative and positive signals. The implementation and tests provide a strong foundation, including substantive security controls, adversarial corpus coverage, Docker Compose services, correlation IDs, README limitations, and a detailed prompt record. The repository was not submission-ready because a provider credential was present in the committed `.env` file and tests/secret scanning were not wired into CI. The credential should be revoked and purged from Git history before sharing the repository.
+
+**User:**
+
+> sumorize it for me in file so i can refer to it letter
+
+**Copilot:**
+
+> Created `SUBMISSION_READINESS.md` with the readiness assessment, blockers, strengths, remediation steps, CI requirements, and final submission checklist. The note intentionally does not reproduce the exposed credential.
+
+**User:**
+
+> dockdockerpose exec gateway bun run seed:key -- --- --key-idal-client --ro--roleent --ra--rate-limit 30
+> $ tsx src/scripts/seedApiKey.ts --key-id local-client --role client --rate-limit "30"
+> error: Cannot find module './cjs/index.cjs' from ''
+>
+> Bun v1.3.14 (Linux x64 baseline)
+> error: script "seed:key" exited with code 1
+
+**Copilot:**
+
+> Investigated the seed command failure. The command reached the `tsx` launcher, but Bun failed while resolving `tsx`'s CommonJS entrypoint before `seedApiKey.ts` executed. The initial suspicion that `argon2` was the root cause was tested and rejected because the host dependency path reached the seed script successfully. The container image was rebuilt, but the fresh image reproduced the failure, so the issue was not stale image state. The remaining investigation is to test a direct `tsx` CLI/module invocation and then make the smallest verified command change if that path works.
+
+**User:**
+
+> update the prompt md file with today prompts
+
+**Copilot:**
+
+> Appended this dated continuation record to `PROMPTS.md`, preserving the actual prompts and the current verified status of the seed-command investigation.
+
+This record is intentionally limited to the interaction that actually occurred on 2026-08-19. The seed command has not been recorded as successful: the failure occurs before the database seed operation completes.
