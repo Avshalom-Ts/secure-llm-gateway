@@ -128,6 +128,10 @@ skg_<keyId>_<secret>
 
 The seed command above creates a real key for Docker smoke testing. Invalid-key handling can also be tested without a seeded key:
 
+### Testing Chat endpoint
+
+#### Windows
+
 ```powershell
 Invoke-WebRequest -UseBasicParsing `
   -Method Post `
@@ -135,6 +139,15 @@ Invoke-WebRequest -UseBasicParsing `
   -ContentType application/json `
   -Headers @{ "x-api-key" = "invalid" } `
   -Body '{"model":"gpt-4o","messages":[{"role":"user","content":"hello"}]}'
+```
+
+#### Linux/Mac
+
+```bash
+curl -X POST http://localhost:3000/v1/chat \
+  -H 'Content-Type: application/json' \
+  -H 'x-api-key: invalid' \
+  -d '{"model":"gpt-4o","messages":[{"role":"user","content":"hello"}]}'
 ```
 
 The expected result is a sanitized `401` response. When no provider key is configured, a valid authenticated chat request reaches the pipeline and returns a controlled `503` for provider unavailability.
