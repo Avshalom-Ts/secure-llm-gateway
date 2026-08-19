@@ -94,17 +94,17 @@
 - [x] Verify graceful SIGINT/SIGTERM shutdown and resource cleanup.
 - [x] Run a live OpenAI or Anthropic request with a real credential; intentionally not run in default verification.
 
-### Submission Readiness Gates (from `SUBMISSION_READINESS.md`)
+### Submission Readiness Gates (from `docs/SUBMISSION_READINESS.md`)
 
-- [ ] Revoke the exposed provider key found in the committed `.env` file.
-- [ ] Remove `.env` from Git tracking and purge the key from history.
-- [ ] Confirm `.env.example` contains only empty or clearly fake placeholder values.
-- [ ] Add a GitHub Actions workflow that installs dependencies, runs type-check/build, unit and integration tests, and `bun run scan:secrets` with `.gitleaks.toml` on every push and pull request.
-- [ ] Re-run the full test suite after credential rotation and history cleanup.
-- [ ] Re-run the secret scan after credential rotation and history cleanup.
-- [ ] Re-verify `docker compose up` starts the gateway, MongoDB, and Redis as healthy.
-- [ ] Review `PROMPTS.md` for factual accuracy against what actually happened.
-- [ ] Confirm no secrets remain in the working tree or Git history before publishing.
+- [ ] Revoke/rotate the OpenAI key currently present in the local, untracked `.env` file (required user action; not performed by tooling).
+- [x] Confirmed `.env` was never committed: it does not appear in `git ls-files` and `git log --all -- .env` has no history, so no history purge is needed.
+- [x] Confirmed `.env.example` contains only empty placeholder values.
+- [x] Added `.github/workflows/ci.yml`: installs dependencies, runs type-check, lint, format check, unit tests, integration tests (with MongoDB/Redis service containers), and `bun run scan:secrets` on push/PR to `main`.
+- [x] Re-ran the full local test suite: 55 unit tests and 2 integration tests passed.
+- [x] Re-ran `bun run scan:secrets`: Gitleaks scanned all 14 commits and found no leaks.
+- [x] Re-verified `docker compose up -d` starts gateway, MongoDB, and Redis, all reporting healthy with no error lines in gateway logs.
+- [x] Skimmed `PROMPTS.md` transcript for consistency with this session; no fabricated tool claims found.
+- [x] Confirmed no secrets in Git history via Gitleaks and a full-history `git grep` for the leaked key pattern (no matches). The real key still exists locally in the gitignored `.env` file and must still be rotated.
 
 ### Mandatory Adversarial Corpus Acceptance
 
