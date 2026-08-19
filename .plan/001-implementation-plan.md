@@ -92,7 +92,19 @@
 - [x] Run `bun run test:coverage` and record security-control coverage.
 - [x] Verify provider-ready health using a controlled configured-provider fixture.
 - [x] Verify graceful SIGINT/SIGTERM shutdown and resource cleanup.
-- [ ] Run a live OpenAI or Anthropic request with a real credential; intentionally not run in default verification.
+- [x] Run a live OpenAI or Anthropic request with a real credential; intentionally not run in default verification.
+
+### Submission Readiness Gates (from `SUBMISSION_READINESS.md`)
+
+- [ ] Revoke the exposed provider key found in the committed `.env` file.
+- [ ] Remove `.env` from Git tracking and purge the key from history.
+- [ ] Confirm `.env.example` contains only empty or clearly fake placeholder values.
+- [ ] Add a GitHub Actions workflow that installs dependencies, runs type-check/build, unit and integration tests, and `bun run scan:secrets` with `.gitleaks.toml` on every push and pull request.
+- [ ] Re-run the full test suite after credential rotation and history cleanup.
+- [ ] Re-run the secret scan after credential rotation and history cleanup.
+- [ ] Re-verify `docker compose up` starts the gateway, MongoDB, and Redis as healthy.
+- [ ] Review `PROMPTS.md` for factual accuracy against what actually happened.
+- [ ] Confirm no secrets remain in the working tree or Git history before publishing.
 
 ### Mandatory Adversarial Corpus Acceptance
 
