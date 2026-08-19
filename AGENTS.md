@@ -11,6 +11,7 @@ Use this repository as a starter. Replace the placeholders in `.doc/` and adjust
 
 - Keep the product definition, architecture, and glossary current as the project takes shape.
 - Update database guidance when the data model or migration approach changes.
+- Add a concise JSDoc block before every named function, exported handler, class constructor, and meaningful local helper. Document its purpose, parameters, return value, and thrown errors where relevant. Do not add repetitive comments to ordinary inline callbacks or trivial expressions.
 
 ## Engineering Standards
 

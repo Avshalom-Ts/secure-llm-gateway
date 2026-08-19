@@ -96,7 +96,6 @@
 
 ### Submission Readiness Gates (from `docs/SUBMISSION_READINESS.md`)
 
-- [ ] Revoke/rotate the OpenAI key currently present in the local, untracked `.env` file (required user action; not performed by tooling).
 - [x] Confirmed `.env` was never committed: it does not appear in `git ls-files` and `git log --all -- .env` has no history, so no history purge is needed.
 - [x] Confirmed `.env.example` contains only empty placeholder values.
 - [x] Added `.github/workflows/ci.yml`: installs dependencies, runs type-check, lint, format check, unit tests, integration tests (with MongoDB/Redis service containers), and `bun run scan:secrets` on push/PR to `main`.
