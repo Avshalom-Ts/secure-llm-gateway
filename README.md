@@ -183,6 +183,15 @@ Docker Compose startup and gateway `/healthz` smoke verification have passed. Mo
 
 The service intentionally excludes streaming, tool/function calling, file uploads, server-side conversation storage, billing, UI features, and full semantic DLP. Pattern-based injection detection is not a proof of intent and cannot guarantee detection of every novel attack. PII recovery is deferred because a reversible vault requires separate encryption, TTL, access control, and audited administrative workflows.
 
+## What this service does not protect against
+
+- **Novel or obfuscated prompt injections.** Detection is pattern-based against known attack families (see `tests/security/mandatory-adversarial-test-corpus.json`); it cannot guarantee detection of a genuinely new phrasing, encoding, or multi-turn technique that does not match any known pattern.
+- **Semantic or paraphrased PII.** Only structurally recognizable email addresses, phone numbers, and checksum-valid Israeli national IDs are redacted. Free-text PII that does not match these patterns (names, addresses, medical details) is not detected or redacted.
+- **Compromised or leaked API keys.** Authentication trusts any request bearing a valid `x-api-key`; the gateway cannot distinguish a legitimate holder from an attacker who obtained a key through a channel outside this service.
+- **Malicious or compromised LLM providers.** Output validation blocks known secret shapes and echoed injections, but cannot catch every form of harmful, biased, or incorrect content a provider might return.
+- **Application-layer trust decisions.** The gateway enforces its own controls but does not vouch for how a downstream application uses the (possibly redacted) response.
+- **Volumetric or distributed denial-of-service.** Per-key Redis rate limiting bounds a single key's request rate; it does not protect the network or process from large-scale distributed abuse.
+
 See [docs/secure-llm-gateway.md](docs/secure-llm-gateway.md) for the detailed design and [.plan/001-implementation-plan.md](.plan/001-implementation-plan.md) for implementation status.
 
 ## Project structure

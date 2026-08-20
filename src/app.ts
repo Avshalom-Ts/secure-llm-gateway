@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 
 import { errorBody, GatewayError } from "./errors.ts";
 import type { AppConfig } from "./config.ts";
+import { createLogger } from "./logger.ts";
 import { createAuditRouter } from "./routes/audit.ts";
 import { createChatRouter, type ChatDependencies } from "./routes/chat.ts";
 
@@ -22,6 +23,7 @@ export type AppDependencies = ChatDependencies & {
  */
 export function createApp(config: AppConfig, dependencies?: AppDependencies): Express {
   const app = express();
+  const logger = createLogger(config);
 
   app.disable("x-powered-by");
   app.use((_request, response, next) => {
@@ -79,7 +81,7 @@ export function createApp(config: AppConfig, dependencies?: AppDependencies): Ex
           ? new GatewayError("INVALID_REQUEST", 400, "The request body is invalid.")
           : new GatewayError("INTERNAL_ERROR", 500, "An internal error occurred.");
 
-    console.error({
+    logger.error({
       correlationId,
       code: gatewayError.code,
       status: gatewayError.status,

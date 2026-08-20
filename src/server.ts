@@ -6,14 +6,16 @@ import { MongoAuditRepository } from "./repositories/auditRepository.ts";
 import { MongoApiKeyRepository } from "./repositories/apiKeyRepository.ts";
 import { createRedisRateLimiter } from "./repositories/redisRateLimiter.ts";
 import { createProvider } from "./providers/factory.ts";
+import { createLogger } from "./logger.ts";
 
 const config = loadConfig();
+const logger = createLogger(config);
 const mongo = new MongoClient(config.mongodbUri);
 await mongo.connect();
 const database = mongo.db();
 const redis = createClient({ url: config.redisUrl });
 redis.on("error", () => {
-  console.error({ component: "redis", reason: "connection_error" });
+  logger.error({ component: "redis", reason: "connection_error" });
 });
 await redis.connect();
 
@@ -36,7 +38,7 @@ const app = createApp(config, {
 });
 
 const server = app.listen(config.port, () => {
-  console.log(`secure-llm-gateway listening on port ${config.port}`);
+  logger.info({ port: config.port }, "secure-llm-gateway listening");
 });
 
 /**
@@ -45,7 +47,7 @@ const server = app.listen(config.port, () => {
  * @returns A promise resolved after the server and dependencies close.
  */
 async function shutdown(signal: string): Promise<void> {
-  console.log(`received ${signal}, shutting down`);
+  logger.info({ signal }, "shutting down");
   await new Promise<void>((resolve, reject) =>
     server.close((error) => (error ? reject(error) : resolve())),
   );
